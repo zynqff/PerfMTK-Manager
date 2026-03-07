@@ -31,13 +31,15 @@ jobs:
         run: |
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android/app/my-key.jks
 
+      - name: Create local.properties
+        run: |
+          echo "storeFile=my-key.jks" >> android/local.properties
+          echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" >> android/local.properties
+          echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/local.properties
+          echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/local.properties
+
       - name: Build APK
         run: flutter build apk --release
-        env:
-          KEYSTORE_PATH: my-key.jks
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
