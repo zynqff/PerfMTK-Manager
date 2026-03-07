@@ -22,13 +22,22 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.41.4'
+          flutter-version: '3.32.0'
 
       - name: Get dependencies
         run: flutter pub get
 
+      - name: Decode keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android/app/my-key.jks
+
       - name: Build APK
         run: flutter build apk --release
+        env:
+          KEYSTORE_PATH: my-key.jks
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
@@ -36,12 +45,8 @@ jobs:
           files: build/app/outputs/flutter-apk/app-release.apk
           name: PerfMTK Manager ${{ github.ref_name }}
           body: |
-            ## PerfMTK Manager ${{ github.ref_name }}
-            
-            ### Что нового
-            - Добавлен русский язык
-            
-            ### Скачать
-            Скачай `app-release.apk` ниже и установи на устройство.
+            - Added Russian language (Initial translation. May be rough)
+            - Full Russification
+            - If you have any corrections or want to help with the translation into Russian and other languages, contact: zynqff@gmail.com
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
